@@ -5,6 +5,12 @@ import (
 	"testing"
 )
 
+var implementations = map[string]func(uint64) int{
+	"PopCount":  PopCount,
+	"PopCount2": PopCount2,
+	"PopCount3": PopCount3,
+}
+
 func TestPopcount(t *testing.T) {
 	testPopcount := func(t *testing.T, input uint64, want int, popcountImpl func(uint64) int) {
 		t.Helper()
@@ -12,12 +18,6 @@ func TestPopcount(t *testing.T) {
 		if retValue != want {
 			t.Fatalf("%d is not %d", retValue, want)
 		}
-	}
-
-	implementations := map[string]func(uint64) int{
-		"PopCount":  PopCount,
-		"PopCount2": PopCount2,
-		"PopCount3": PopCount3,
 	}
 
 	for name, function := range implementations {
@@ -28,22 +28,15 @@ func TestPopcount(t *testing.T) {
 }
 
 func BenchmarkPopcount(b *testing.B) {
-	b.Run("popcount 1", func(b *testing.B) {
+	benchmarkPopcount := func(b *testing.B, popcountImpl func(uint64) int) {
 		tester1 := uint64(367)
 		for i := 0; i < b.N; i++ {
-			PopCount(tester1)
+			popcountImpl(tester1)
 		}
-	})
-	b.Run("popcount 2", func(b *testing.B) {
-		tester1 := uint64(367)
-		for i := 0; i < b.N; i++ {
-			PopCount2(tester1)
-		}
-	})
-	b.Run("popcount 3", func(b *testing.B) {
-		tester1 := uint64(367)
-		for i := 0; i < b.N; i++ {
-			PopCount3(tester1)
-		}
-	})
+	}
+	for name, function := range implementations {
+		b.Run(fmt.Sprintf("benchmark %s", name), func(b *testing.B) {
+			benchmarkPopcount(b, function)
+		})
+	}
 }
