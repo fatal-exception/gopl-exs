@@ -21,10 +21,21 @@ func PopCount(x uint64) int {
 		pc[byte(x>>(7*8))])
 }
 
+// PopCount2 uses a loop to do a PopCount. Ex2.3
 func PopCount2(x uint64) int {
 	var result int
 	for i := range pc {
-		result += int(pc[byte(x>>(uint(i) * 8))])
+		result += int(pc[byte(x>>(uint(i)*8))])
+	}
+	return result
+
+}
+
+// PopCount3 shifts each individual bit and counts it, for dreadful performance
+func PopCount3(x uint64) int {
+	var result int
+	for i := range pc {
+		result += int(pc[byte(x>>(uint(i)*8))])
 	}
 	return result
 
