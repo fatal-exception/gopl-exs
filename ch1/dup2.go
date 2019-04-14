@@ -8,7 +8,7 @@ import (
 	"os"
 )
 
-func rain() {
+func dain() {
 	counts := make(map[string]int)
 	files := os.Args[1:]
 	for _, arg := range files {

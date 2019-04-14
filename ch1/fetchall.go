@@ -2,14 +2,14 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
-	"time"
-	"bufio"
 	"strings"
+	"time"
 )
 
 func getUrls(filename string) []string {
@@ -20,13 +20,13 @@ func getUrls(filename string) []string {
 		for scanner.Scan() {
 			line := scanner.Text()
 			url := strings.Split(line, ",")[1]
-			urls = append(urls, "http://" + url)
+			urls = append(urls, "http://"+url)
 		}
 	}
 	return urls
 }
 
-func fain2() {
+func main() {
 	start := time.Now()
 	filename := os.Args[1]
 	urls := getUrls(filename)
