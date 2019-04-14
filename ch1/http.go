@@ -12,7 +12,7 @@ func main() {
 	log.Fatal(http.ListenAndServe("localhost:8000", nil))
 }
 
-// handler echoes the Path component of the requested URL.
+// handler calls Lissajous. Ex1.12
 func handler(w http.ResponseWriter, r *http.Request) {
 	params := r.URL.Query()
 
@@ -23,10 +23,10 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	delay := 8
 
 	for name, value := range map[string]*int{
-		"cycles": &cycles,
-		"size": &size,
+		"cycles":  &cycles,
+		"size":    &size,
 		"nframes": &nframes,
-		"delay": &delay} {
+		"delay":   &delay} {
 		if len(params[name]) > 0 {
 			if num, err := strconv.Atoi(params[name][0]); err != nil {
 				*value = num
@@ -36,4 +36,3 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 	lissajous(w, cycles, size, nframes, delay)
 }
-
