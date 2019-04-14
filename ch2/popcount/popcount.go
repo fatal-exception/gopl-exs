@@ -34,9 +34,24 @@ func PopCount2(x uint64) int {
 // PopCount3 shifts each individual bit and counts it, for dreadful performance
 func PopCount3(x uint64) int {
 	var result int
-	for i := range pc {
-		result += int(pc[byte(x>>(uint(i)*8))])
+	var i uint
+	for i = 0; i < 64; i++ {
+		if x&1 == 1 {
+			result++
+		}
+		x = x >> 1
 	}
 	return result
+}
 
+// PopCount4 uses negation to count a population. Ex2.5
+func PopCount4(x uint64) int {
+	var result int
+	afterX := x & (x - 1)
+	for afterX != x {
+		result++
+		x = afterX
+		afterX = x & (x - 1)
+	}
+	return result
 }

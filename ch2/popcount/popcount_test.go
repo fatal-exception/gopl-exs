@@ -9,6 +9,7 @@ var implementations = map[string]func(uint64) int{
 	"PopCount":  PopCount,
 	"PopCount2": PopCount2,
 	"PopCount3": PopCount3,
+	"PopCount4": PopCount4,
 }
 
 func TestPopcount(t *testing.T) {
