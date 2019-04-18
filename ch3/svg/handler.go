@@ -1,31 +1,30 @@
 package svg
 
 import (
+	"errors"
+	"fmt"
+	"math"
 	"net/http"
 	"net/url"
-	"math"
 	"strconv"
-	"fmt"
-	"errors"
 )
 
 func getParams(v url.Values) (map[string]int, map[string]float64) {
 	params := v
 
 	// set defaults
-	xyrange       := 30.0                // axis ranges (-xyrange..+xyrange)
+	xyrange := 30.0 // axis ranges (-xyrange..+xyrange)
 
-	intMap := map[string]int {
-		"width": 600,
+	intMap := map[string]int{
+		"width":  600,
 		"height": 320,
-		"cells": 100,
+		"cells":  100,
 	}
 
 	for name := range intMap {
 		if len(params[name]) > 0 {
-			var num int
-			var err error
-			if num, err = strconv.Atoi(params[name][0]); err != nil {
+			num, err := strconv.Atoi(params[name][0])
+			if err != nil {
 				fmt.Printf("Bad param: %s=%s\n", name, params[name][0])
 				fmt.Println(err)
 				continue
@@ -34,18 +33,17 @@ func getParams(v url.Values) (map[string]int, map[string]float64) {
 		}
 	}
 
-	floatMap := map[string]float64 {
+	floatMap := map[string]float64{
 		"xyrange": xyrange,
 		"xyscale": float64(intMap["width"]) / 2 / xyrange,
-		"zscale": float64(intMap["height"]) * 0.4,
-		"angle": math.Pi / 6,
+		"zscale":  float64(intMap["height"]) * 0.4,
+		"angle":   math.Pi / 6,
 	}
 
 	for name := range floatMap {
 		if len(params[name]) > 0 {
-			var num int
-			var err error
-			if num, err = strconv.Atoi(params[name][0]); err != nil {
+			num, err := strconv.Atoi(params[name][0])
+			if err != nil {
 				fmt.Printf("Bad param: %s=%s\n", name, params[name][0])
 				fmt.Println(err)
 			}
@@ -55,11 +53,10 @@ func getParams(v url.Values) (map[string]int, map[string]float64) {
 	return intMap, floatMap
 }
 
-// handler echoes the Path component of the requested URL.
+// Handler echoes the Path component of the requested URL.
 func Handler(w http.ResponseWriter, r *http.Request) {
 
 	intParams, floatParams := getParams(r.URL.Query())
-
 
 	w.Header().Set("Content-Type", "image/svg+xml")
 	w.Write(
@@ -86,16 +83,24 @@ func svg(width int, height int, cells int, xyrange float64, xyscale float64, zsc
 		for j := 0; j < cells; j++ {
 			ax, ay, err := corner(
 				i+1, j, xyrange, sin30, cos30, xyscale, zscale, cells, width, height)
-			if err != nil {continue}
+			if err != nil {
+				continue
+			}
 			bx, by, err := corner(
 				i, j, xyrange, sin30, cos30, xyscale, zscale, cells, width, height)
-			if err != nil {continue}
+			if err != nil {
+				continue
+			}
 			cx, cy, err := corner(
 				i, j+1, xyrange, sin30, cos30, xyscale, zscale, cells, width, height)
-			if err != nil {continue}
+			if err != nil {
+				continue
+			}
 			dx, dy, err := corner(
-				i+1, j+1, xyrange, sin30, cos30, xyscale, zscale, cells, width, height);
-			if err != nil {continue}
+				i+1, j+1, xyrange, sin30, cos30, xyscale, zscale, cells, width, height)
+			if err != nil {
+				continue
+			}
 
 			xmlResponse += fmt.Sprintf("<polygon points='%g,%g %g,%g %g,%g %g,%g'/>\n",
 				ax, ay, bx, by, cx, cy, dx, dy)
@@ -113,6 +118,7 @@ func corner(i, j int, xyrange, sin30, cos30, xyscale, zscale float64, cells, wid
 	y := float64(xyrange) * (float64(j)/float64(cells) - 0.5)
 
 	// Compute surface height z.
+	// Ex 3.1
 	z := f(x, y)
 	if z == math.NaN() || z == math.Inf(1) || z == math.Inf(-1) {
 		err = errors.New("invalid number, skipping polygon")
@@ -126,6 +132,5 @@ func corner(i, j int, xyrange, sin30, cos30, xyscale, zscale float64, cells, wid
 
 func f(x, y float64) float64 {
 	r := math.Hypot(x, y) // distance from (0,0)
-	return math.Sin(r) / r
+	return math.Tan(r)
 }
-
