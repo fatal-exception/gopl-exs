@@ -1,13 +1,22 @@
 package set
 
+import (
+	"sort"
+	"strconv"
+)
+
 // IntSet is a way of handling sets in Golang, with ints
 type IntSet struct {
 	data map[int]bool
 }
 
 // New makes an IntSet
-func New() *IntSet {
-	return &IntSet{data: map[int]bool{}}
+func New(initValues ...int) *IntSet {
+	newSet := &IntSet{data: map[int]bool{}}
+	for _, val := range initValues {
+		newSet.Add(val)
+	}
+	return newSet
 }
 
 // Add adds an int or several to an IntSet
@@ -48,11 +57,13 @@ func (iset IntSet) Union(iset2 *IntSet) (resultSet *IntSet) {
 }
 
 // ToSlice returns a slice of all ints in an IntSet
-func (iset IntSet) ToSlice() (result []int) {
+func (iset IntSet) ToSlice() []int {
+	var result []int
 	for k := range iset.data {
 		result = append(result, k)
 	}
-	return
+	sort.Ints(result)
+	return result
 }
 
 // Intersect takes the union of 2 sets
@@ -84,4 +95,32 @@ func mapEquals(m1 map[int]bool, m2 map[int]bool) bool {
 // Equals compares 2 sets to see if they have same contents
 func (iset *IntSet) Equals(iset2 *IntSet) bool {
 	return mapEquals(iset.data, iset2.data)
+}
+
+// Subtract takes one set away from another, returning a new set
+func (iset *IntSet) Subtract(iset2 *IntSet) *IntSet {
+	result := New()
+	for k := range iset.data {
+		if !iset2.Contains(k) {
+			result.Add(k)
+		}
+	}
+	return result
+}
+
+// String to look nice e.g. Set[4, 5, 8]
+func (iset *IntSet) String() string {
+	stringPrefix := "Set["
+	contentString := ""
+	stringSuffix := "]"
+	ints := iset.ToSlice()
+	sort.Ints(ints)
+	for i, val := range ints {
+		valString := strconv.Itoa(val)
+		contentString = contentString + valString
+		if i != len(ints)-1 { // only add comma for non-last iteration
+			contentString += ", "
+		}
+	}
+	return stringPrefix + contentString + stringSuffix
 }

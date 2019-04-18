@@ -1,6 +1,9 @@
 package set
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 func IntSliceEquals(t *testing.T, s1 []int, s2 []int) bool {
 	t.Helper()
@@ -105,7 +108,7 @@ func TestSet(t *testing.T) {
 	})
 	t.Run("Set to slice", func(t *testing.T) {
 		s1 := New()
-		s1.Add(1, 2, 3)
+		s1.Add(2, 1, 3, 2)
 		slice := s1.ToSlice()
 		expected := []int{1, 2, 3}
 		if !IntSliceEquals(t, slice, expected) {
@@ -124,16 +127,31 @@ func TestSet(t *testing.T) {
 			t.Errorf("Expected %d but got %d from s3", expectedLength, s3Length)
 		}
 	})
-	// t.Run("Set difference", func(t *testing.T) {
-	// 	s1 := New()
-	// 	s1.Add(1, 2, 3, 4)
-	// 	s2 := New()
-	// 	s2.Add(2, 3)
-	// 	s3 := s1.Intersect(s2)
-	// 	s3Length := s3.Len()
-	// 	expectedLength := 1
-	// 	if s3Length != expectedLength {
-	// 		t.Errorf("Expected %d but got %d from s3", expectedLength, s3Length)
-	// 	}
-	// })
+	t.Run("Constructor takes args", func(t *testing.T) {
+		s1 := New(1, 2, 3)
+		expectedSet := New()
+		expectedSet.Add(1)
+		expectedSet.Add(2)
+		expectedSet.Add(3)
+		if !s1.Equals(expectedSet) {
+			t.Errorf("Expected %v to match %v", s1, expectedSet)
+		}
+	})
+	t.Run("Decent string output", func(t *testing.T) {
+		s1 := New(4, 5, 8)
+		stringOutput := fmt.Sprint(s1)
+		expectedOutput := "Set[4, 5, 8]"
+		if stringOutput != expectedOutput {
+			t.Errorf("Expected %s but got %s", expectedOutput, stringOutput)
+		}
+	})
+	t.Run("Set subtraction", func(t *testing.T) {
+		s1 := New(1, 2, 3, 4)
+		s2 := New(2, 3)
+		s3 := s1.Subtract(s2)
+		expected := New(1, 4)
+		if !s3.Equals(expected) {
+			t.Errorf("Set s3 after subtraction expected %v, got %v", expected, s3)
+		}
+	})
 }
